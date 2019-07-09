@@ -326,7 +326,7 @@ public class CardStackLayoutManager
         final int parentLeft = getPaddingLeft();
         final int parentRight = getWidth() - getPaddingLeft();
         final int parentBottom = getHeight() - getPaddingBottom();
-        for (int i = state.topPosition; i < state.topPosition + setting.visibleCount && i < getItemCount(); i++) {
+        for (int i = Math.max(state.topPosition, 0); i < state.topPosition + setting.visibleCount && i < getItemCount(); i++) {
             View child = recycler.getViewForPosition(i);
             addView(child, 0);
             measureChildWithMargins(child, 0, 0);
