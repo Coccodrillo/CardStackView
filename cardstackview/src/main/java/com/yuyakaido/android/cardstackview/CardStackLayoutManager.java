@@ -3,6 +3,7 @@ package com.yuyakaido.android.cardstackview;
 import android.content.Context;
 import android.graphics.PointF;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
@@ -48,12 +49,16 @@ public class CardStackLayoutManager
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State s) {
-        update(recycler);
-        if (s.didStructureChange()) {
-            View topView = getTopView();
-            if (topView != null) {
-                listener.onCardAppeared(getTopView(), state.topPosition);
+        try {
+            update(recycler);
+            if (s.didStructureChange()) {
+                View topView = getTopView();
+                if (topView != null) {
+                    listener.onCardAppeared(getTopView(), state.topPosition);
+                }
             }
+        } catch (IndexOutOfBoundsException e) {
+            Log.e("CardStackLayoutManager", "Buggy recyclerview", e);
         }
     }
 
@@ -326,7 +331,7 @@ public class CardStackLayoutManager
         final int parentLeft = getPaddingLeft();
         final int parentRight = getWidth() - getPaddingLeft();
         final int parentBottom = getHeight() - getPaddingBottom();
-        for (int i = Math.max(state.topPosition, 0); i < state.topPosition + setting.visibleCount && i < getItemCount(); i++) {
+        for (int i = state.topPosition; i < state.topPosition + setting.visibleCount && i < getItemCount(); i++) {
             View child = recycler.getViewForPosition(i);
             addView(child, 0);
             measureChildWithMargins(child, 0, 0);
