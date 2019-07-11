@@ -49,16 +49,12 @@ public class CardStackLayoutManager
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State s) {
-        try {
-            update(recycler);
-            if (s.didStructureChange()) {
-                View topView = getTopView();
-                if (topView != null) {
-                    listener.onCardAppeared(getTopView(), state.topPosition);
-                }
+        update(recycler);
+        if (s.didStructureChange()) {
+            View topView = getTopView();
+            if (topView != null) {
+                listener.onCardAppeared(getTopView(), state.topPosition);
             }
-        } catch (IndexOutOfBoundsException e) {
-            Log.e("CardStackLayoutManager", "Buggy recyclerview", e);
         }
     }
 
@@ -332,27 +328,31 @@ public class CardStackLayoutManager
         final int parentRight = getWidth() - getPaddingLeft();
         final int parentBottom = getHeight() - getPaddingBottom();
         for (int i = state.topPosition; i < state.topPosition + setting.visibleCount && i < getItemCount(); i++) {
-            View child = recycler.getViewForPosition(i);
-            addView(child, 0);
-            measureChildWithMargins(child, 0, 0);
-            layoutDecoratedWithMargins(child, parentLeft, parentTop, parentRight, parentBottom);
+            try {
+                View child = recycler.getViewForPosition(i);
+                addView(child, 0);
+                measureChildWithMargins(child, 0, 0);
+                layoutDecoratedWithMargins(child, parentLeft, parentTop, parentRight, parentBottom);
 
-            resetTranslation(child);
-            resetScale(child);
-            resetRotation(child);
-            resetOverlay(child);
-
-            if (i == state.topPosition) {
-                updateTranslation(child);
+                resetTranslation(child);
                 resetScale(child);
-                updateRotation(child);
-                updateOverlay(child);
-            } else {
-                int currentIndex = i - state.topPosition;
-                updateTranslation(child, currentIndex);
-                updateScale(child, currentIndex);
                 resetRotation(child);
                 resetOverlay(child);
+
+                if (i == state.topPosition) {
+                    updateTranslation(child);
+                    resetScale(child);
+                    updateRotation(child);
+                    updateOverlay(child);
+                } else {
+                    int currentIndex = i - state.topPosition;
+                    updateTranslation(child, currentIndex);
+                    updateScale(child, currentIndex);
+                    resetRotation(child);
+                    resetOverlay(child);
+                }
+            } catch (IndexOutOfBoundsException e) {
+                Log.e("CardStackLayoutManager", "Invalid RecyclerView Access", e);
             }
         }
 
